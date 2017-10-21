@@ -1,5 +1,6 @@
 (ns clj-petnames.core
-  (:require [clojure.tools.cli :refer [parse-opts]])
+  (:require [clojure.tools.cli :refer [parse-opts]]
+            [clojure.string :as str])
   )
 
 (def adjectives ["able", "above", "absolute", "accepted", "accurate", "ace", "active", "actual", "adapted", "adapting", "adequate", "adjusted", "advanced", "alert", "alive", "allowed", "allowing", "amazed", "amazing", "ample", "amused", "amusing", "apparent", "apt", "arriving", "artistic", "assured", "assuring", "awaited", "awake", "aware", "balanced", "becoming", "beloved", "better", "big", "blessed", "bold", "boss", "brave", "brief", "bright", "bursting", "busy", "calm", "capable", "capital", "careful", "caring", "casual", "causal", "central", "certain", "champion", "charmed", "charming", "cheerful", "chief", "choice", "civil", "classic", "clean", "clear", "clever", "climbing", "close", "closing", "coherent", "comic", "communal", "complete", "composed", "concise", "concrete", "content", "cool", "correct", "cosmic", "crack", "creative", "credible", "crisp", "crucial", "cuddly", "cunning", "curious", "current", "cute", "daring", "darling", "dashing", "dear", "decent", "deciding", "deep", "definite", "delicate", "desired", "destined", "devoted", "direct", "discrete", "distinct", "diverse", "divine", "dominant", "driven", "driving", "dynamic", "eager", "easy", "electric", "elegant", "emerging", "eminent", "enabled", "enabling", "endless", "engaged", "engaging", "enhanced", "enjoyed", "enormous", "enough", "epic", "equal", "equipped", "eternal", "ethical", "evident", "evolved", "evolving", "exact", "excited", "exciting", "exotic", "expert", "factual", "fair", "faithful", "famous", "fancy", "fast", "feasible", "fine", "finer", "firm", "first", "fit", "fitting", "fleet", "flexible", "flowing", "fluent", "flying", "fond", "frank", "free", "fresh", "full", "fun", "funky", "funny", "game", "generous", "gentle", "genuine", "giving", "glad", "glorious", "glowing", "golden", "good", "gorgeous", "grand", "grateful", "great", "growing", "grown", "guided", "guiding", "handy", "happy", "hardy", "harmless", "healthy", "helped", "helpful", "helping", "heroic", "hip", "holy", "honest", "hopeful", "hot", "huge", "humane", "humble", "humorous", "ideal", "immense", "immortal", "immune", "improved", "in", "included", "infinite", "informed", "innocent", "inspired", "integral", "intense", "intent", "internal", "intimate", "inviting", "joint", "just", "keen", "key", "kind", "knowing", "known", "large", "lasting", "leading", "learning", "legal", "legible", "lenient", "liberal", "light", "liked", "literate", "live", "living", "logical", "loved", "loving", "loyal", "lucky", "magical", "magnetic", "main", "major", "many", "massive", "master", "mature", "maximum", "measured", "meet", "merry", "mighty", "mint", "model", "modern", "modest", "moral", "more", "moved", "moving", "musical", "mutual", "national", "native", "natural", "nearby", "neat", "needed", "neutral", "new", "next", "nice", "noble", "normal", "notable", "noted", "novel", "obliging", "on", "one", "open", "optimal", "optimum", "organic", "oriented", "outgoing", "patient", "peaceful", "perfect", "pet", "picked", "pleasant", "pleased", "pleasing", "poetic", "polished", "polite", "popular", "positive", "possible", "powerful", "precious", "precise", "premium", "prepared", "present", "pretty", "primary", "prime", "pro", "probable", "profound", "promoted", "prompt", "proper", "proud", "proven", "pumped", "pure", "quality", "quick", "quiet", "rapid", "rare", "rational", "ready", "real", "refined", "regular", "related", "relative", "relaxed", "relaxing", "relevant", "relieved", "renewed", "renewing", "resolved", "rested", "rich", "right", "robust", "romantic", "ruling", "sacred", "safe", "saved", "saving", "secure", "select", "selected", "sensible", "set", "settled", "settling", "sharing", "sharp", "shining", "simple", "sincere", "singular", "skilled", "smart", "smashing", "smiling", "smooth", "social", "solid", "sought", "sound", "special", "splendid", "square", "stable", "star", "steady", "sterling", "still", "stirred", "stirring", "striking", "strong", "stunning", "subtle", "suitable", "suited", "summary", "sunny", "super", "superb", "supreme", "sure", "sweeping", "sweet", "talented", "teaching", "tender", "thankful", "thorough", "tidy", "tight", "together", "tolerant", "top", "topical", "tops", "touched", "touching", "tough", "true", "trusted", "trusting", "trusty", "ultimate", "unbiased", "uncommon", "unified", "unique", "united", "up", "upright", "upward", "usable", "useful", "valid", "valued", "vast", "verified", "viable", "vital", "vocal", "wanted", "warm", "wealthy", "welcome", "welcomed", "well", "whole", "willing", "winning", "wired", "wise", "witty", "wondrous", "workable", "working", "worthy"])
@@ -16,14 +17,55 @@
    :adverbs adverbs
    :adjectives adjectives})
 
-(defn generate [words letters seperator ubuntu words]
-    (str (first (:adverbs words)) seperator (first (:names words))))
+(defn random-char []
+  (first (shuffle (str/split "abcdefghijklmnopqrstuvwxyz" #""))))
+
+(defn filter-letter-count
+  "filters all colls down to words with max number of letters"
+  [letters coll]
+  (if (= letters 0)
+    coll
+  (filter #(<= (count %) letters) coll)))
+
+(defn filter-on-first-letter
+  [letter coll]
+  (filter #(str/starts-with? % letter) coll))
+
+(defn filter-on-letter-and-word-length
+  [first-letter letters coll]
+  (->> coll
+      (filter-on-first-letter first-letter)
+      (filter-letter-count letters)))
+
+(filter-on-letter-and-word-length "b" 3 names)
+;; Replace the filter in generate with the above call.
+;; Get it to work with the ubuntu boolean
+;;
+;; Need to shuffle each time as well, not just once
+;; lein run -- -w 4 doesn't work
+
+
+(defn generate 
+  " generates a string made up of adverbs, adjectives and animal names.
+    if words == 1 then just a random is returned
+    if words == 2 then adjective-animal
+    if more than 2 words the a number of adverbs followed by adjective-animal
+  "
+  [words letters seperator ubuntu colls]
+  (let [filtr (partial filter-letter-count letters)]
+  (case words
+    0 ""
+    1 (first (filtr (:names colls)))
+    2 (str (first (filtr (:adjectives colls))) seperator (first (filtr (:names colls))))
+    (str (first (filtr (:adverbs colls))) seperator (generate (dec words) letters seperator ubuntu colls))
+    )))
+
 
 (def cli-options
   [["-w" "--words INT" "number of words in the name"
     :default 2
     :parse-fn #(Integer/parseInt %)]
-   ["-l" "--letter INT" "number of letters in each word"
+   ["-l" "--letters INT" "number of letters in each word"
     :default 0
     :parse-fn #(Integer/parseInt %)]
    ["-s" "--seperator SEP" "seperator string used to seperate words"
@@ -32,6 +74,8 @@
     :default false]
    ["-h" "--help"]]
   )
+
 (defn -main [& args]
-  (println (parse-opts args cli-options)))
+  (let [opts (:options (parse-opts args cli-options))]
+   (println (generate (:words opts) (:letters opts) (:seperator opts) (:ubuntu opts) random))))
   
