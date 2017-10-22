@@ -12,14 +12,14 @@
   (testing "word counts"
     (is (= (generate 1 0 "-" "" nonrandom) "ox"))
     (is (= (generate 2 0 "-" "" nonrandom) "able-ox"))
-    (is (= (generate 3 0 "-" "" nonrandom) "abnormally-able-ox"))
-    (is (= (generate 4 0 "-" "" nonrandom) "abnormally-abnormally-able-ox"))
-    (is (= (generate 5 0 "-" "" nonrandom) "abnormally-abnormally-abnormally-able-ox"))))
+    (is (= (generate 3 0 "-" "" nonrandom) "abnormally-above-ant"))
+    (is (= (generate 4 0 "-" "" nonrandom) "abnormally-absolutely-absolute-ape"))
+    (is (= (generate 5 0 "-" "" nonrandom) "abnormally-absolutely-accurately-accepted-asp"))))
 
 (deftest letters-test
   (testing "letter counts"
     (is (= (generate 1 2 "-" "" nonrandom) "ox"))
-    (is (= (generate 3 4 "-" "" nonrandom) "duly-able-ox"))))
+    (is (= (generate 3 4 "-" "" nonrandom) "duly-ace-ant"))))
 
 (deftest ubuntu-test
   (testing "test ubuntu mode"

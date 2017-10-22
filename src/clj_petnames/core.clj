@@ -37,17 +37,20 @@
       (filter-on-first-letter first-letter)
       (filter-letter-count letters)))
 
-(filter-on-letter-and-word-length "b" 3 names)
-;; Need to shuffle each time as well, not just once
-;; lein run -- -w 4 doesn't work
 (defn gen
   [words filtr seperator colls]
+  (let [name (first (filtr (:names colls)))
+        adj  (first (filtr (:adjectives colls)))
+        adv  (first (filtr (:adverbs colls)))
+        next-colls {:names (rest (:names colls))
+                    :adverbs (rest (:adverbs colls))
+                    :adjectives (rest (:adjectives colls))}]
   (case words
     0 ""
     1 (first (filtr (:names colls)))
     2 (str (first (filtr (:adjectives colls))) seperator (first (filtr (:names colls))))
-    (str (first (filtr (:adverbs colls))) seperator (gen (dec words) filtr seperator colls))
-    ))
+    (str (first (filtr (:adverbs colls))) seperator (gen (dec words) filtr seperator next-colls))
+    )))
 
 
 (defn generate 
