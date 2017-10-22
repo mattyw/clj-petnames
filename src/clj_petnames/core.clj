@@ -38,11 +38,16 @@
       (filter-letter-count letters)))
 
 (filter-on-letter-and-word-length "b" 3 names)
-;; Replace the filter in generate with the above call.
-;; Get it to work with the ubuntu boolean
-;;
 ;; Need to shuffle each time as well, not just once
 ;; lein run -- -w 4 doesn't work
+(defn gen
+  [words filtr seperator colls]
+  (case words
+    0 ""
+    1 (first (filtr (:names colls)))
+    2 (str (first (filtr (:adjectives colls))) seperator (first (filtr (:names colls))))
+    (str (first (filtr (:adverbs colls))) seperator (gen (dec words) filtr seperator colls))
+    ))
 
 
 (defn generate 
@@ -52,14 +57,9 @@
     if more than 2 words the a number of adverbs followed by adjective-animal
   "
   [words letters seperator ubuntu colls]
-  (let [filtr (partial filter-letter-count letters)]
-  (case words
-    0 ""
-    1 (first (filtr (:names colls)))
-    2 (str (first (filtr (:adjectives colls))) seperator (first (filtr (:names colls))))
-    (str (first (filtr (:adverbs colls))) seperator (generate (dec words) letters seperator ubuntu colls))
-    )))
-
+  (if (not (= "" ubuntu))
+    (gen 2 (partial filter-on-letter-and-word-length ubuntu letters) seperator colls)
+    (gen words (partial filter-letter-count letters) seperator colls)))
 
 (def cli-options
   [["-w" "--words INT" "number of words in the name"
@@ -70,8 +70,8 @@
     :parse-fn #(Integer/parseInt %)]
    ["-s" "--seperator SEP" "seperator string used to seperate words"
     :default "-"]
-   ["-u" "--ubuntu" "ubuntu generate ubuntu-style names, alliteration of first character of each word"
-    :default false]
+   ["-u" "--ubuntu CHAR" "ubuntu generate ubuntu-style names, alliteration of given character of each word"
+    :default ""]
    ["-h" "--help"]]
   )
 
