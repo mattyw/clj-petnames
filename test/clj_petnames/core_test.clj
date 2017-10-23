@@ -5,23 +5,27 @@
 
 (deftest a-test
   (testing "simple seperator"
-    (is (= (generate 2 0 "-" "" nonrandom) "able-ox"))
-    (is (= (generate 2 0 ":" "" nonrandom) "able:ox"))))
+    (with-redefs [word-map nonrandom]
+      (is (= (generate 2 0 "-" "") "able-ox"))
+      (is (= (generate 2 0 ":" "") "able:ox")))))
 
 (deftest words-test
   (testing "word counts"
-    (is (= (generate 1 0 "-" "" nonrandom) "ox"))
-    (is (= (generate 2 0 "-" "" nonrandom) "able-ox"))
-    (is (= (generate 3 0 "-" "" nonrandom) "abnormally-above-ant"))
-    (is (= (generate 4 0 "-" "" nonrandom) "abnormally-absolutely-absolute-ape"))
-    (is (= (generate 5 0 "-" "" nonrandom) "abnormally-absolutely-accurately-accepted-asp"))))
+    (with-redefs [word-map nonrandom]
+      (is (= (generate 1 0 "-" "") "ox"))
+      (is (= (generate 2 0 "-" "") "able-ox"))
+      (is (= (generate 3 0 "-" "") "abnormally-above-ant"))
+      (is (= (generate 4 0 "-" "") "abnormally-absolutely-absolute-ape"))
+      (is (= (generate 5 0 "-" "") "abnormally-absolutely-accurately-accepted-asp")))))
 
 (deftest letters-test
   (testing "letter counts"
-    (is (= (generate 1 2 "-" "" nonrandom) "ox"))
-    (is (= (generate 3 4 "-" "" nonrandom) "duly-ace-ant"))))
+    (with-redefs [word-map nonrandom]
+      (is (= (generate 1 2 "-" "") "ox"))
+      (is (= (generate 3 4 "-" "") "duly-ace-ant")))))
 
 (deftest ubuntu-test
   (testing "test ubuntu mode"
-    (is (= (generate 1 0 "-" "u" nonrandom) "ultimate-urchin"))
-    (is (= (generate 3 0 "-" "b" nonrandom) "balanced-bat"))))
+    (with-redefs [word-map nonrandom]
+      (is (= (generate 1 0 "-" "u") "ultimate-urchin"))
+      (is (= (generate 3 0 "-" "b") "balanced-bat")))))
